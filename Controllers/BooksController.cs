@@ -1,10 +1,12 @@
-﻿using BookStoreManagement.Models;
+﻿using Microsoft.AspNetCore.Authorization;
+using BookStoreManagement.Models;
 using BookStoreManagement.Services;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 
 namespace BookStoreManagement.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class BooksController : ControllerBase

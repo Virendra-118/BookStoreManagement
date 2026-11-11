@@ -10,10 +10,12 @@ namespace BookStoreManagement.Controllers
     public class AuthController : ControllerBase
     {
         private readonly UserService _userService;
+        private readonly TokenService _tokenService;
 
-        public AuthController(UserService userService)
+        public AuthController(UserService userService, TokenService tokenService)
         {
             _userService = userService;
+            _tokenService = tokenService;
         }
 
         [HttpPost("register")]
@@ -51,13 +53,21 @@ namespace BookStoreManagement.Controllers
                 });
             }
 
+            var tokenResult = _tokenService.GenerateToken(user);
+
             return Ok(new
             {
-                message = "Login successful.",
-                user.Id,
-                user.FullName,
-                user.Email,
-                user.Role
+                message = "Login successful",
+                token = tokenResult.Token,
+                expiresAt = tokenResult.ExpiresAt,
+                user = new
+                {
+                    id = user.Id,
+                    fullName = user.FullName,
+                    email = user.Email,
+                    
+                    role = user.Role
+                }
             });
         }
 

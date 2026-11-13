@@ -358,7 +358,8 @@
         "required": [
           "email",
           "fullName",
-          "password"
+          "password",
+          "role"
         ],
         "type": "object",
         "properties": {
@@ -370,6 +371,10 @@
             "minLength": 1,
             "type": "string",
             "format": "email"
+          },
+          "role": {
+            "minLength": 1,
+            "type": "string"
           },
           "password": {
             "minLength": 8,

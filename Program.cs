@@ -1,53 +1,35 @@
-//using BookStoreManagement.Config;
-//using BookStoreManagement.Services;
-
-//var builder = WebApplication.CreateBuilder(args);
-
-//// Register services
-//builder.Services.AddControllers();
-
-//builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
-//builder.Services.AddScoped<TokenService>();
-
-
-//// Register MongoDB configuration and services
-//builder.Services.AddSingleton<MongoDbConfig>();
-//builder.Services.AddSingleton<BookService>();
-//builder.Services.AddSingleton<UserService>();
-////builder.Services.AddSingleton<EmailService>();
-
-
-//var app = builder.Build();
-
-//// Configure Swagger
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-
-//    app.UseHttpsRedirection();
-
-//    app.UseAuthorization();
-
-//    app.MapControllers();
-
-//    app.Run();
-//}
-
 
 using BookStoreManagement.Config;
 using BookStoreManagement.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add controllers and Swagger
+// Controllers and Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter your JWT token."
+    });
+
+    options.AddSecurityRequirement(document =>
+        new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+        });
+});
 
 // Register services
 builder.Services.AddSingleton<MongoDbConfig>();
@@ -55,7 +37,47 @@ builder.Services.AddSingleton<BookService>();
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddScoped<TokenService>();
 
+// JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 
+var secretKey = jwtSettings["SecretKey"]
+    ?? throw new InvalidOperationException("JWT SecretKey is missing.");
+
+if (Encoding.UTF8.GetByteCount(secretKey) < 32)
+{
+    throw new InvalidOperationException(
+        "JWT SecretKey must contain at least 32 bytes.");
+}
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme =
+        JwtBearerDefaults.AuthenticationScheme;
+
+    options.DefaultChallengeScheme =
+        JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(secretKey)
+        ),
+
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -64,26 +86,27 @@ builder.Services.AddCors(options =>
             .AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader();
-    }); 
+    });
 });
 
 var app = builder.Build();
 
-// Configure middleware
+// Swagger
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+// Middleware
 app.UseHttpsRedirection();
+
 app.UseCors("AllowAll");
-// Authentication must come before Authorization
+
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
-
-

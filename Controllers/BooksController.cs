@@ -18,6 +18,7 @@ namespace BookStoreManagement.Controllers
             _bookService = bookService;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateBook(Book book)
         {
@@ -30,6 +31,7 @@ namespace BookStoreManagement.Controllers
             );
         }
 
+        [Authorize(Roles = "Admin, Customer")]
         [HttpGet]
         public async Task<IActionResult> GetAllBooks()
         {
@@ -38,7 +40,7 @@ namespace BookStoreManagement.Controllers
             return Ok(books);
         }
 
-
+        [Authorize(Roles = "Admin, Customer")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBookById(string id)
         {
@@ -57,6 +59,7 @@ namespace BookStoreManagement.Controllers
             return Ok(book);
         }
 
+        [Authorize(Roles = "Admin, Customer")]
         [HttpGet("search")]
         public async Task<IActionResult> SearchBooks(string title)
         {
@@ -75,6 +78,7 @@ namespace BookStoreManagement.Controllers
             return Ok(books);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBook(string id, Book book)
         {
@@ -94,6 +98,7 @@ namespace BookStoreManagement.Controllers
         }
 
         // DELETE: api/books/{id}
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(string id)
         {

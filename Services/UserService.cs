@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
 using BookStoreManagement.DTOs;
 using BookStoreManagement.Models;
+
 using MongoDB.Driver;
 
 namespace BookStoreManagement.Services
@@ -188,5 +189,20 @@ namespace BookStoreManagement.Services
 
             return result.ModifiedCount > 0;
         }
+
+
+        public async Task<List<UserDto>> GetAllUsersAsync()
+        {
+            var users = await _users.Find(_ => true).ToListAsync();
+
+            return users.Select(user => new UserDto
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Email = user.Email,
+                Role = user.Role,
+            }).ToList();
+        }
+
     }
 }

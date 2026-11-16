@@ -36,6 +36,7 @@ builder.Services.AddSingleton<MongoDbConfig>();
 builder.Services.AddSingleton<BookService>();
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddSingleton<BookCopyService>();
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -91,20 +92,16 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Swagger
+// Middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Middleware
 app.UseHttpsRedirection();
-
 app.UseCors("AllowAll");
-
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.MapControllers();

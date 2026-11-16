@@ -271,6 +271,18 @@
           }
         }
       }
+    },
+    "/api/Users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -358,8 +370,7 @@
         "required": [
           "email",
           "fullName",
-          "password",
-          "role"
+          "password"
         ],
         "type": "object",
         "properties": {
@@ -371,10 +382,6 @@
             "minLength": 1,
             "type": "string",
             "format": "email"
-          },
-          "role": {
-            "minLength": 1,
-            "type": "string"
           },
           "password": {
             "minLength": 8,
@@ -401,14 +408,30 @@
         },
         "additionalProperties": false
       }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "Enter your JWT token.",
+        "scheme": "Bearer",
+        "bearerFormat": "JWT"
+      }
     }
   },
+  "security": [
+    {
+      "Bearer": [ ]
+    }
+  ],
   "tags": [
     {
       "name": "Auth"
     },
     {
       "name": "Books"
+    },
+    {
+      "name": "Users"
     }
   ]
 }

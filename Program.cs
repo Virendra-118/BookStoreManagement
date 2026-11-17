@@ -37,6 +37,7 @@ builder.Services.AddSingleton<BookService>();
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddSingleton<BookCopyService>();
+builder.Services.AddSingleton<BookAllocationService>();
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

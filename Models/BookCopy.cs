@@ -10,7 +10,6 @@ namespace BookStoreManagement.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
 
-        [BsonRepresentation(BsonType.ObjectId)]
         public string BookId { get; set; } = string.Empty;
 
         public string CopyNumber { get; set; } = string.Empty;
